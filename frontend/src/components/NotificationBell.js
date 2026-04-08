@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+
 const Toast = ({ notification, onClose, onClick }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, 5000);
@@ -70,7 +72,7 @@ const NotificationBell = () => {
 
   const fetchNotifications = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/notifications', {
+      const { data } = await axios.get(`${API_BASE}/notifications`, {
         headers: { 'x-auth-token': localStorage.getItem('token') }
       });
       setNotifications(data);
@@ -88,7 +90,7 @@ const NotificationBell = () => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, {
+      await axios.put(`${API_BASE}/notifications/${id}/read`, {}, {
         headers: { 'x-auth-token': localStorage.getItem('token') }
       });
       fetchNotifications();
@@ -114,7 +116,7 @@ const NotificationBell = () => {
 
   const markAllAsRead = async () => {
     try {
-      await axios.put('http://localhost:5000/api/notifications/read-all', {}, {
+      await axios.put(`${API_BASE}/notifications/read-all`, {}, {
         headers: { 'x-auth-token': localStorage.getItem('token') }
       });
       fetchNotifications();

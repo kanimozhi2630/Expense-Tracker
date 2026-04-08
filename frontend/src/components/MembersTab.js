@@ -1,24 +1,28 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React from 'react';
 
-const fetchNotifications = useCallback(async () => {
-  try {
-    const { data } = await axios.get('http://localhost:5000/api/notifications', {
-      headers: { 'x-auth-token': localStorage.getItem('token') }
-    });
-    setNotifications(data);
-    setUnreadCount(data.filter(n => !n.read).length);
+const MembersTab = ({ group }) => {
+  const members = group?.members || [];
 
-    if (data.length > 0 && data[0]._id !== lastNotificationId && !data[0].read) {
-      setToastNotification(data[0]);
-      setLastNotificationId(data[0]._id);
-    }
-  } catch (err) {
-    console.error('Failed to fetch notifications');
-  }
-}, [lastNotificationId]);
+  return (
+    <div className="members-tab card">
+      <h2>Group Members</h2>
+      <p style={{ marginBottom: '16px' }}>
+        {members.length} member{members.length !== 1 ? 's' : ''}
+      </p>
+      {members.length === 0 ? (
+        <p>No members have been added to this group yet.</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {members.map((member) => (
+            <li key={member._id} style={{ padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+              <strong>{member.name || 'Unnamed member'}</strong>
+              <div style={{ fontSize: '14px', color: '#666' }}>{member.email || 'No email provided'}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
-useEffect(() => {
-  fetchNotifications();
-  const interval = setInterval(fetchNotifications, 5000);
-  return () => clearInterval(interval);
-}, [fetchNotifications]);
+export default MembersTab;
