@@ -12,7 +12,8 @@ API.interceptors.request.use((req) => {
 
 export const auth = {
   login: (data) => API.post('/auth/login', data),
-  register: (data) => API.post('/auth/register', data)
+  register: (data) => API.post('/auth/register', data),
+  getByEmail: (email) => API.get(`/auth/user-by-email/${email}`)
 };
 
 export const groups = {
