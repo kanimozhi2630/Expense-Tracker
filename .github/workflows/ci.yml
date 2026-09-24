@@ -12,6 +12,9 @@ jobs:
   ci:
     name: Build, Validate, and Dockerize
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -44,10 +47,27 @@ jobs:
         run: npm install
 
       # -----------------------------------------------------------
-      # Docker Build Validation: Build images locally in runner (No push)
+      # Docker Build Validation: Build images locally in runner
       # -----------------------------------------------------------
       - name: Build Backend Docker Image
         run: docker build -t expense-backend:latest ./backend
 
       - name: Build Frontend Docker Image
         run: docker build -t expense-frontend:latest ./frontend
+
+      # -----------------------------------------------------------
+      # AWS Authentication & Amazon ECR Push (Backend Only)
+      # -----------------------------------------------------------
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Tag and Push Backend Docker Image to Amazon ECR
+        run: |
+          docker tag expense-backend:latest 911025658890.dkr.ecr.us-east-1.amazonaws.com/expense-backend:latest
+          docker push 911025658890.dkr.ecr.us-east-1.amazonaws.com/expense-backend:latest
